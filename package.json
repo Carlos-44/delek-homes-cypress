@@ -5,17 +5,30 @@
   "scripts": {
     "test": "cypress run",
     "test:headed": "cypress run --headed --browser chrome",
-    "test:open": "cypress open"
+    "test:open": "cypress open",
+    "test:public": "cypress run --env tags=\"not @requires-account\"",
+    "test:report": "cypress run && echo Report: cypress/reports/html/index.html"
   },
   "keywords": [],
   "author": "Carlos Ozoria",
   "license": "ISC",
   "description": "Cypress E2E and API tests for the Delek Homes real estate demo app",
   "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^21.0.3",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.8",
     "cypress": "^13.13.2",
-    "cypress-file-upload": "^5.0.8"
+    "cypress-file-upload": "^5.0.8",
+    "cypress-mochawesome-reporter": "^3.8.4",
+    "cypress-multi-reporters": "^2.0.5",
+    "esbuild": "^0.28.2",
+    "mocha-junit-reporter": "^2.2.1"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1"
+  },
+  "cypress-cucumber-preprocessor": {
+    "stepDefinitions": "cypress/support/step_definitions/**/*.js",
+    "filterSpecs": true,
+    "omitFiltered": true
   }
 }

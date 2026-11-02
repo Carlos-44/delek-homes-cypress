@@ -1,6 +1,5 @@
 import './commands';
-
-console.log('e2e.js loaded'); // Verify that the file is loaded
+import 'cypress-mochawesome-reporter/register';
 
 // Call the error handler custom command inside a before hook
 before(() => {

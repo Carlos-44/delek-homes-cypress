@@ -20,3 +20,11 @@ function readUser(prefix) {
 export function getUsers() {
   return { adminUser: readUser("ADMIN"), validUser: readUser("USER") };
 }
+
+// "user" and "admin" in feature files map to these accounts
+export function accountFor(role) {
+  const { adminUser, validUser } = getUsers();
+  const accounts = { admin: adminUser, user: validUser };
+  if (!accounts[role]) throw new Error(`Unknown account "${role}". Use "user" or "admin".`);
+  return accounts[role];
+}

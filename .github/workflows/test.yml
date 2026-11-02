@@ -1,0 +1,166 @@
+name: Cypress BDD Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache node_modules and Cypress binary
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+  test:
+    name: Run Scenarios
+    runs-on: ubuntu-latest
+    needs: install
+    timeout-minutes: 30
+    outputs:
+      scope: ${{ steps.scope.outputs.scope }}
+    env:
+      # Test accounts come from GitHub Secrets. Nothing identifying a person is committed.
+      CYPRESS_ADMIN_EMAIL: ${{ secrets.CYPRESS_ADMIN_EMAIL }}
+      CYPRESS_ADMIN_PASSWORD: ${{ secrets.CYPRESS_ADMIN_PASSWORD }}
+      CYPRESS_ADMIN_FIRST_NAME: ${{ secrets.CYPRESS_ADMIN_FIRST_NAME }}
+      CYPRESS_ADMIN_LAST_NAME: ${{ secrets.CYPRESS_ADMIN_LAST_NAME }}
+      CYPRESS_USER_EMAIL: ${{ secrets.CYPRESS_USER_EMAIL }}
+      CYPRESS_USER_PASSWORD: ${{ secrets.CYPRESS_USER_PASSWORD }}
+      CYPRESS_USER_FIRST_NAME: ${{ secrets.CYPRESS_USER_FIRST_NAME }}
+      CYPRESS_USER_LAST_NAME: ${{ secrets.CYPRESS_USER_LAST_NAME }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Restore node_modules and Cypress binary
+        id: node-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies (cache miss)
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      # Secrets aren't available to pull requests from forks, so those runs
+      # fall back to the scenarios that don't need an account.
+      - name: Choose scenarios
+        id: scope
+        run: |
+          if [ -n "$CYPRESS_ADMIN_EMAIL" ] && [ -n "$CYPRESS_USER_EMAIL" ]; then
+            echo "scope=all" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::Test account secrets are not set, so only scenarios without @requires-account will run."
+            echo "scope=public" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Cucumber scenarios
+        continue-on-error: true # the report stage decides pass or fail
+        run: |
+          if [ "${{ steps.scope.outputs.scope }}" = "all" ]; then
+            npm test -- --browser chrome
+          else
+            npm run test:public -- --browser chrome
+          fi
+
+      - name: Upload JUnit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit-results
+          path: cypress/reports/junit/
+          retention-days: 14
+
+      - name: Upload Mochawesome HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mochawesome-report
+          path: cypress/reports/html/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload failure screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  report:
+    name: Publish Results
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    permissions:
+      checks: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download JUnit results
+        uses: actions/download-artifact@v4
+        with:
+          name: junit-results
+          path: cypress/reports/junit
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        with:
+          name: Cucumber Scenarios
+          path: cypress/reports/junit/*.xml
+          reporter: java-junit
+          fail-on-error: true
+
+  notify:
+    name: Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [test, report]
+    if: always()
+    steps:
+      - name: Summary
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+          REPORT_RESULT: ${{ needs.report.result }}
+          SCOPE: ${{ needs.test.outputs.scope }}
+        run: |
+          echo "## Pipeline Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Stage | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scenarios run | $SCOPE |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Test | $TEST_RESULT |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Report | $REPORT_RESULT |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The Mochawesome HTML report is attached to this run as the \`mochawesome-report\` artifact." >> "$GITHUB_STEP_SUMMARY"
