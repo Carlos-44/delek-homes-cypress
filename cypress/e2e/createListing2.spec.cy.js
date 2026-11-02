@@ -1,3 +1,4 @@
+import { getUsers } from "../support/users";
 import "cypress-file-upload";
 import { faker } from "@faker-js/faker";
 import CreateListingPage from "../page_objects/createListingPage";
@@ -9,7 +10,7 @@ describe("Create New Listing", () => {
 
   before(() => {
     // Load the fixture data
-    cy.fixture("userCredentials.json").then((credentials) => {
+    cy.wrap(getUsers()).then((credentials) => {
       adminUser = credentials.adminUser;
 
       // Perform login via API using the fixture data

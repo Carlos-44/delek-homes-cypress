@@ -30,12 +30,11 @@ npm install
 ```
 
 ### Credentials
-Credentials are not committed. Create these two files from the examples and fill in your own accounts:
+No emails, names or passwords are committed. Every test user detail comes from environment variables, read in `cypress/support/users.js`. Copy the example file and fill in your own test accounts:
 ```bash
-cp cypress/fixtures/userCredentials.example.json cypress/fixtures/userCredentials.json
 cp cypress.env.example.json cypress.env.json
 ```
-Both real files are listed in `.gitignore`.
+`cypress.env.json` is listed in `.gitignore`. In CI, set the same values as `CYPRESS_ADMIN_EMAIL`, `CYPRESS_USER_EMAIL`, and so on.
 
 ### Run Tests
 ```bash

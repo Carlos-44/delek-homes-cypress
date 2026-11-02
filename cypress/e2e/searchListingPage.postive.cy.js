@@ -1,6 +1,8 @@
-import userCredentials from "../fixtures/userCredentials.json";
-import FeaturedListingPage from "../pageObjects/featuredListing";
-import HomePage from "../pageObjects/homePage";
+import { getUsers } from "../support/users";
+
+const userCredentials = getUsers();
+import FeaturedListingPage from "../pages/featuredListing";
+import HomePage from "../pages/homePage";
 import verificationTexts from "../fixtures/verificationTexts.json";
 
 describe("Featured Listing Page Tests", () => {

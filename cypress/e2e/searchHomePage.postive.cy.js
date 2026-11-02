@@ -1,6 +1,8 @@
-import HomePage from "../pageObjects/homePage"; // Corrected import for HomePage
+import HomePage from "../pages/homePage"; // Corrected import for HomePage
 import verificationTexts from "../fixtures/verificationTexts.json"; // Corrected import for verificationTexts
-import userCredentials from "../fixtures/userCredentials.json"; // Add import for userCredentials
+import { getUsers } from "../support/users";
+
+const userCredentials = getUsers();
 
 // Home Page Search Tests Suite
 describe("Home Page Search Tests", () => {

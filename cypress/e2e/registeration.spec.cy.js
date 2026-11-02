@@ -1,8 +1,10 @@
-import DashboardPage from "../pageObjects/dashboardPage";
-import HomePage from "../pageObjects/homePage";
-import RegistrationPage from "../pageObjects/registrationPage";
+import DashboardPage from "../pages/dashboardPage";
+import HomePage from "../pages/homePage";
+import RegistrationPage from "../pages/registrationPage";
 import { faker } from "@faker-js/faker";
-import userCredentials from "../fixtures/userCredentials.json";
+import { getUsers } from "../support/users";
+
+const userCredentials = getUsers();
 import verificationTexts from "../fixtures/verificationTexts.json";
 
 describe("Register Tests", () => {

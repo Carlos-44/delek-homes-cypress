@@ -1,8 +1,17 @@
 node_modules/
+
+# Cypress output
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
-# real credentials stay local
+cypress/reports/
+
+# Credentials stay local
 cypress/fixtures/userCredentials.json
 cypress.env.json
 .env
+.env.*
+!.env.example
+
+*.log
+.DS_Store

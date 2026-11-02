@@ -1,7 +1,9 @@
-import DashboardPage from "../pageObjects/dashboardPage";
-import HomePage from "../pageObjects/homePage";
-import LoginPage from "../pageObjects/loginPage";
-import userCredentials from "../fixtures/userCredentials.json";
+import DashboardPage from "../pages/dashboardPage";
+import HomePage from "../pages/homePage";
+import LoginPage from "../pages/loginPage";
+import { getUsers } from "../support/users";
+
+const userCredentials = getUsers();
 
 describe("Login Tests", () => {
   beforeEach(() => {

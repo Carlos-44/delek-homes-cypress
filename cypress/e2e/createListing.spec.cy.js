@@ -1,14 +1,15 @@
+import { getUsers } from "../support/users";
 import "cypress-file-upload";
 import { faker } from "@faker-js/faker";
-import CreateListingPage from "../pageObjects/createListingPage";
-import HomePage from "../pageObjects/homePage";
+import CreateListingPage from "../pages/createListingPage";
+import HomePage from "../pages/homePage";
 
 describe("Create New Listing Tests", () => {
   let adminUser;
 
   before(() => {
     // Load credentials from the fixture
-    cy.fixture("userCredentials.json").then((credentials) => {
+    cy.wrap(getUsers()).then((credentials) => {
       adminUser = credentials.adminUser;
     });
   });
@@ -79,7 +80,7 @@ describe("Create New Listing Tests", () => {
 
   it("should log in via API and create a new listing with image upload", () => {
     // Load credentials from the fixture
-    cy.fixture("userCredentials.json").then((credentials) => {
+    cy.wrap(getUsers()).then((credentials) => {
       const adminUser = credentials.adminUser;
 
       // Perform login via API using the fixture data
