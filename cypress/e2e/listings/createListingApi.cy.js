@@ -1,4 +1,4 @@
-import { getUsers } from "../support/users";
+import { getUsers } from "../../support/users";
 import "cypress-file-upload";
 import { faker } from "@faker-js/faker";
 
@@ -7,11 +7,11 @@ describe("Create and Delete Listing via API using JSON Data", () => {
   let listingData;
 
   before(() => {
-    // Load the fixture data for user credentials
+    // Load test users from environment variables
     cy.wrap(getUsers()).then((credentials) => {
       adminUser = credentials.adminUser;
 
-      // Perform login via API using the fixture data
+      // Log in through the API
       cy.request("POST", "/api/users/login", {
         email: adminUser.email,
         password: adminUser.password,

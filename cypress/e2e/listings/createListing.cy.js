@@ -1,14 +1,14 @@
-import { getUsers } from "../support/users";
+import { getUsers } from "../../support/users";
 import "cypress-file-upload";
 import { faker } from "@faker-js/faker";
-import CreateListingPage from "../pages/createListingPage";
-import HomePage from "../pages/homePage";
+import CreateListingPage from "../../pages/createListingPage";
+import HomePage from "../../pages/homePage";
 
 describe("Create New Listing Tests", () => {
   let adminUser;
 
   before(() => {
-    // Load credentials from the fixture
+    // Test users come from environment variables (see cypress/support/users.js)
     cy.wrap(getUsers()).then((credentials) => {
       adminUser = credentials.adminUser;
     });
@@ -79,11 +79,11 @@ describe("Create New Listing Tests", () => {
   });
 
   it("should log in via API and create a new listing with image upload", () => {
-    // Load credentials from the fixture
+    // Test users come from environment variables (see cypress/support/users.js)
     cy.wrap(getUsers()).then((credentials) => {
       const adminUser = credentials.adminUser;
 
-      // Perform login via API using the fixture data
+      // Log in through the API
       cy.request("POST", "/api/users/login", {
         email: adminUser.email,
         password: adminUser.password,

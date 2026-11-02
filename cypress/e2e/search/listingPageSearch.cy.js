@@ -1,9 +1,9 @@
-import { getUsers } from "../support/users";
+import { getUsers } from "../../support/users";
 
 const userCredentials = getUsers();
-import FeaturedListingPage from "../pages/featuredListing";
-import HomePage from "../pages/homePage";
-import verificationTexts from "../fixtures/verificationTexts.json";
+import FeaturedListingPage from "../../pages/featuredListing";
+import HomePage from "../../pages/homePage";
+import verificationTexts from "../../fixtures/verificationTexts.json";
 
 describe("Featured Listing Page Tests", () => {
   beforeEach(() => {

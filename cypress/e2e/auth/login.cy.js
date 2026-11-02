@@ -1,7 +1,7 @@
-import DashboardPage from "../pages/dashboardPage";
-import HomePage from "../pages/homePage";
-import LoginPage from "../pages/loginPage";
-import { getUsers } from "../support/users";
+import DashboardPage from "../../pages/dashboardPage";
+import HomePage from "../../pages/homePage";
+import LoginPage from "../../pages/loginPage";
+import { getUsers } from "../../support/users";
 
 const userCredentials = getUsers();
 
@@ -11,7 +11,7 @@ describe("Login Tests", () => {
     cy.visit("/");
   });
 
-  it.only("login with existing account", () => {
+  it("login with existing account", () => {
     // Step 1: Click the login button on the homepage
     HomePage.clickLoginBtn();
 

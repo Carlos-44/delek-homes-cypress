@@ -1,11 +1,11 @@
-import DashboardPage from "../pages/dashboardPage";
-import HomePage from "../pages/homePage";
-import RegistrationPage from "../pages/registrationPage";
+import DashboardPage from "../../pages/dashboardPage";
+import HomePage from "../../pages/homePage";
+import RegistrationPage from "../../pages/registrationPage";
 import { faker } from "@faker-js/faker";
-import { getUsers } from "../support/users";
+import { getUsers } from "../../support/users";
 
 const userCredentials = getUsers();
-import verificationTexts from "../fixtures/verificationTexts.json";
+import verificationTexts from "../../fixtures/verificationTexts.json";
 
 describe("Register Tests", () => {
   let email;

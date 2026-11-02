@@ -1,6 +1,6 @@
-import HomePage from "../pages/homePage"; // Corrected import for HomePage
-import verificationTexts from "../fixtures/verificationTexts.json"; // Corrected import for verificationTexts
-import { getUsers } from "../support/users";
+import HomePage from "../../pages/homePage";
+import verificationTexts from "../../fixtures/verificationTexts.json";
+import { getUsers } from "../../support/users";
 
 const userCredentials = getUsers();
 

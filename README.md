@@ -9,14 +9,16 @@
 - **Test data:** Faker for generated listing data, `cypress-file-upload` for listing photos
 
 ## What's Tested
-| Spec | Covers |
-|---|---|
-| `login.spec.cy.js` | Valid login and the dashboard redirect |
-| `registeration.spec.cy.js` | Registration form, including signing up with an email that already exists |
-| `createListing.spec.cy.js`, `createListing2.spec.cy.js` | Creating a listing through the UI: details, price, address, rooms, photo upload |
-| `createListingAPI.spec.cy.js` | Creating a listing through the API |
-| `searchHomePage.postive.cy.js` | Searching listings from the home page |
-| `searchListingPage.postive.cy.js` | Searching and filtering on the listings page |
+16 tests in 6 specs, grouped by feature:
+
+| Area | Spec | Covers |
+|---|---|---|
+| Auth | `auth/login.cy.js` | Logging in with an existing account, logging out |
+| Auth | `auth/registration.cy.js` | Registering a new account, rejecting an existing email, required-field errors |
+| Listings | `listings/createListing.cy.js` | Creating a listing through the UI with a photo upload, after UI login and after API login |
+| Listings | `listings/createListingApi.cy.js` | Creating and deleting a listing through the API |
+| Search | `search/homePageSearch.cy.js` | Home page search by keyword, bedrooms, city and price |
+| Search | `search/listingPageSearch.cy.js` | Featured listings search and filter by keyword, bedrooms, city and price |
 
 ## Getting Started
 
