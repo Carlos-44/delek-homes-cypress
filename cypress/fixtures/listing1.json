@@ -1,0 +1,17 @@
+{
+  "lotSize": 4000,
+  "sqft": 2493,
+  "garage": 2,
+  "bathrooms": 4,
+  "bedrooms": 4,
+  "price": 370000,
+  "zipCode": 90250,
+  "state": "CA",
+  "city": "Hawthorne",
+  "address": "1717 N McDicker Ave",
+  "description": "Good apartment",
+  "title": "Carlos Land",
+  "isPublished": true,
+  "imagePath": "downloadhomepicture.jpeg",  
+  "imageName": "sample-house.jpg"
+}

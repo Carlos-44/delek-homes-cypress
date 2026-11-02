@@ -1,0 +1,15 @@
+{
+    "errors": {
+        "firstNameRequired": "First name required",
+        "lastNameRequired": "Last name required",
+        "emailRequired": "Email is required",
+        "passwordRequired": "Password is required",
+        "inputDataValidationFailed": "Input data validation failed"
+    },
+    "searchKeyword": "Your future house",
+    "bedroomsLabel": "Bedrooms:",
+    "city": "Galewood",
+    "minPrice": 1000000,
+    "maxPrice": 10000000
+  }
+  

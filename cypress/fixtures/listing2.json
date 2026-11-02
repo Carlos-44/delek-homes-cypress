@@ -1,0 +1,16 @@
+{
+  "title": "Sample Listing Title",
+  "price": 450000,
+  "description": "A beautiful home with all the amenities.",
+  "city": "Austin",
+  "address": "123 Main St",
+  "zipCode": "78701",
+  "bedrooms": 3,
+  "bathrooms": 2,
+  "garage": 1,
+  "sqft": 1500,
+  "lotSize": 5000,
+  "state": "Texas",
+  "imagePath": "testData/sample-house.jpg",
+  "imageName": "sample-house.jpg"
+}
