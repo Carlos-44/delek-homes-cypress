@@ -2,7 +2,9 @@ import { Before, After, Given, When, Then } from "@badeball/cypress-cucumber-pre
 import { faker } from "@faker-js/faker";
 import CreateListingPage from "../../pages/createListingPage";
 import HomePage from "../../pages/homePage";
+import FeaturedListingsPage from "../../pages/featuredListingsPage";
 import { accountFor } from "../users";
+import { cardValue, expectListingDetails } from "../listingChecks";
 
 // Per-scenario state
 let listing;
@@ -17,26 +19,28 @@ Before(() => {
   deleted = false;
 });
 
-function loginThroughApi() {
-  const admin = accountFor("admin");
-  return cy.request("POST", "/api/users/login", { email: admin.email, password: admin.password }).then((response) => {
-    expect(response.status).to.eq(201);
-    token = response.body.accessToken;
-    cy.setCookie("auth_token", token);
-    window.localStorage.setItem("accessToken", token);
+function getApiToken(role, options) {
+  const account = accountFor(role);
+  return cy.loginViaApi(account.email, account.password, options).then((apiToken) => {
+    token = apiToken;
   });
 }
 
-Given("I am signed in as the admin through the {word}", (method) => {
+// ---------- Create a listing (UI) ----------
+
+Given("I am signed in as the {string} account through the {word}", (role, method) => {
   if (method === "UI") {
-    const admin = accountFor("admin");
-    cy.loginViaUI(admin.email, admin.password);
+    const account = accountFor(role);
+    cy.loginViaUI(account.email, account.password);
   } else if (method === "API") {
-    loginThroughApi();
+    getApiToken(role);
   } else {
     throw new Error(`Unknown sign-in method "${method}". Use UI or API.`);
   }
-  cy.visit("/dashboard/real-estate/new");
+});
+
+Given("I open the new listing form", () => {
+  CreateListingPage.visit();
   cy.url().should("include", "/real-estate/new");
 });
 
@@ -55,91 +59,93 @@ When("I publish a new listing with random property details and a photo", () => {
     sqft: faker.number.int({ min: 500, max: 5000 }),
     lotSize: faker.number.int({ min: 1000, max: 10000 }),
   };
-  CreateListingPage.listingTitleInput().type(listing.title);
-  CreateListingPage.listingPriceInput().type(listing.price);
-  CreateListingPage.descriptionInput().type(listing.description);
-  CreateListingPage.cityInput().type(listing.city);
-  CreateListingPage.addressInput().type(listing.address);
-  CreateListingPage.zipCodeInput().type(listing.zipCode);
-  CreateListingPage.selectStateOption(listing.state);
-  CreateListingPage.bedroomsInput().type(String(listing.bedrooms));
-  CreateListingPage.bathroomsInput().type(String(listing.bathrooms));
-  CreateListingPage.garageInput().type(String(listing.garage));
-  CreateListingPage.sqftInput().type(String(listing.sqft));
-  CreateListingPage.lotSizeInput().type(String(listing.lotSize));
+  CreateListingPage.fill(listing);
   cy.uploadImage("downloadhomepicture.jpeg");
-  CreateListingPage.clickPublishSwitch();
-  CreateListingPage.clickSubmitButton();
+  CreateListingPage.togglePublished();
+  // The app posts to /api/estate-objects (axios baseURL "/api/"); capture the new ID for cleanup
+  cy.intercept("POST", /\/api\/+estate-objects$/).as("createListing");
+  CreateListingPage.submit();
+  cy.wait("@createListing").then(({ response }) => {
+    expect(response.statusCode, "create listing status").to.be.within(200, 299);
+    const body = typeof response.body === "string" ? JSON.parse(response.body) : response.body;
+    listingId = body.id;
+  });
 });
 
 Then("I should be taken to the listings dashboard", () => {
-  CreateListingPage.verifyUrlContains("/dashboard/real-estate/list");
+  cy.url().should("include", "/dashboard/real-estate/list");
 });
 
 Then("I can find the listing through the home page search", () => {
-  cy.visit("/");
-  HomePage.typeSearchBar(listing.title);
-  HomePage.clickSearchButton();
-  cy.contains(listing.title).click();
+  HomePage.visit();
+  HomePage.typeSearch(listing.title);
+  HomePage.search();
+  FeaturedListingsPage.openListing(listing.title);
 });
 
 Then("the listing page shows its square footage, bedrooms, bathrooms and garage", () => {
-  cy.get("div.MuiGrid-root").contains(listing.sqft).should("exist");
-  cy.get("div.MuiGrid-root").contains(`${listing.bedrooms}`).should("exist");
-  cy.get("div.MuiGrid-root").contains("Bedrooms").should("exist");
-  cy.get("div.MuiGrid-root").contains(`${listing.bathrooms}`).should("exist");
-  cy.get("div.MuiGrid-root").contains("Bathrooms").should("exist");
-  cy.get("div.MuiGrid-root").contains(`${listing.garage}`).should("exist");
-  cy.get("div.MuiGrid-root").contains("Garage").should("exist");
+  expectListingDetails(listing);
 });
 
+// ---------- Listing detail page (public) ----------
+
+When("I open the first listing shown", () => {
+  FeaturedListingsPage.listingCards()
+    .should("have.length.greaterThan", 0)
+    .first()
+    .then(($card) => {
+      const text = $card.text();
+      listing = {
+        title: $card.find("h5").text().trim(),
+        sqft: cardValue(text, "Sqft"),
+        bedrooms: cardValue(text, "Bedrooms"),
+        bathrooms: cardValue(text, "Bathrooms"),
+        garage: cardValue(text, "Garage"),
+      };
+      Object.entries(listing).forEach(([field, value]) => {
+        expect(value, `first card ${field}`).to.be.a("string").and.not.be.empty;
+      });
+      FeaturedListingsPage.openListing(listing.title);
+    });
+});
+
+Then("I should see the same title, square footage, bedrooms, bathrooms and garage as its card", () => {
+  cy.location("pathname").should("match", /^\/featured-listings\/\d+$/);
+  expectListingDetails(listing);
+});
+
+// ---------- Listings API ----------
+
 Given("I have an admin API token", () => {
-  loginThroughApi();
+  getApiToken("admin", { signInBrowser: false });
 });
 
 When("I create a listing through the API from the {string} fixture", (fixtureName) => {
-  cy.fixture(fixtureName).then((data) => {
-    cy.fixture(data.imagePath, "base64").then((image) => {
-      const formData = new FormData();
-      formData.append("images", Cypress.Blob.base64StringToBlob(image, "image/jpeg"));
-      ["lotSize", "sqft", "garage", "bathrooms", "bedrooms", "price", "zipCode", "state", "city", "address",
-        "description", "title", "isPublished"].forEach((field) => formData.append(field, data[field]));
-
-      cy.request({
-        method: "POST",
-        url: "/api/estate-objects",
-        body: formData,
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((response) => {
-        listingId = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(response.body))).id;
-      });
-    });
+  cy.createListingViaApi(fixtureName, token).then((id) => {
+    listingId = id;
   });
 });
 
 Then("the API should return the new listing's ID", () => {
-  cy.then(() => expect(listingId, "listing ID returned by the API").to.exist);
+  cy.then(() => expect(listingId, "listing ID returned by the API").to.be.a("number"));
 });
 
+// A DELETE for an unknown ID also returns 200, so check one row was affected and the listing is gone
 Then("I can delete that listing through the API", () => {
-  cy.request({
-    method: "DELETE",
-    url: `/api/estate-objects/${listingId}`,
-    headers: { Authorization: `Bearer ${token}` },
-  }).then((response) => {
-    expect(response.status).to.eq(200);
+  cy.deleteListingViaApi(listingId, token).then((response) => {
+    expect(response.status, "delete status").to.eq(200);
+    expect(response.body.affected, "rows deleted").to.eq(1);
     deleted = true;
   });
+  cy.then(() => cy.request(`/api/estate-objects/${listingId}`))
+    .its("body.estateObject")
+    .should("be.null");
 });
 
-// Clean up a listing the API created if the scenario failed before deleting it
+// Delete any listing a scenario created (UI or API) that it did not delete itself.
+// UI sign-in leaves no token here, so one is fetched through the API first.
 After(() => {
-  if (listingId && !deleted && token) {
-    cy.request({
-      method: "DELETE",
-      url: `/api/estate-objects/${listingId}`,
-      headers: { Authorization: `Bearer ${token}` },
-      failOnStatusCode: false,
-    });
-  }
+  if (!listingId || deleted) return;
+  if (!token) getApiToken("admin", { signInBrowser: false });
+  cy.then(() => cy.deleteListingViaApi(listingId, token));
 });

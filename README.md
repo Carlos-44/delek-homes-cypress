@@ -5,7 +5,7 @@
 ![Cypress BDD Tests](https://github.com/Carlos-44/delek-homes-cypress/actions/workflows/test.yml/badge.svg)
 ![Cypress](https://img.shields.io/badge/Cypress-13-17202C?logo=cypress)
 ![Cucumber](https://img.shields.io/badge/Cucumber-Gherkin-23D96C?logo=cucumber&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)
 
 ## Pipeline
 
@@ -31,23 +31,32 @@ flowchart LR
 
 ## What's Tested
 
-16 scenarios in 6 feature files:
+24 tests from 23 scenarios in 8 feature files (the Scenario Outline runs once per Examples row). 18 need no account; 6 are tagged `@requires-account`.
 
 | Area | Feature | Scenarios | Needs an account |
 |---|---|---|---|
-| Auth | `auth/login.feature` | Sign in with an existing account, sign out | Yes |
-| Auth | `auth/registration.feature` | Register a new random account, reject an existing email, required-field errors (data table) | Only the existing-email scenario |
-| Listings | `listings/createListing.feature` | Publish a listing with a photo after signing in through the UI or the API (Scenario Outline) | Yes |
-| Listings | `listings/listingApi.feature` | Create a listing through the API, then delete it | Yes |
-| Search | `search/homePageSearch.feature` | Search by keyword, bedrooms, city and price range | No |
-| Search | `search/featuredListingsSearch.feature` | Search featured listings by keyword, bedrooms, city and price range | Yes |
+| Auth | `auth/login.feature` | Sign in, sign out, reject an unknown email and password, required-field errors, dashboard asks for sign-in | Only sign in and sign out |
+| Auth | `auth/loginApi.feature` | Login API rejects unknown credentials (403) and missing fields (400) | No |
+| Auth | `auth/registration.feature` | Register a new random account, reject an existing email, required-field errors (data table), reject an invalid email | Only the existing-email scenario |
+| Listings | `listings/createListing.feature` | Publish a listing with a photo after signing in through the UI or the API (Scenario Outline, 2 tests) | Yes |
+| Listings | `listings/listingApi.feature` | Create a listing through the API, delete it, confirm it is gone | Yes |
+| Listings | `listings/listingDetails.feature` | A listing's page shows the same title and features as its card | No |
+| Search | `search/homePageSearch.feature` | Search by keyword, a keyword with no matches, bedrooms, city and price range | No |
+| Search | `search/featuredListingsSearch.feature` | Filter featured listings by keyword (taken from a listing on the page), bedrooms, city and price range | No |
 
-Tags: `@auth`, `@listings`, `@search`, `@api`, and `@requires-account` for scenarios that sign in.
+Tags:
+
+| Tag | Meaning |
+|---|---|
+| `@auth`, `@listings`, `@search`, `@api` | Feature area |
+| `@requires-account` | Signs in with a test account from `cypress.env.json` or GitHub Secrets |
+| `@creates-data` | Writes real data to the live site (a new registration account, listings that are then deleted) |
+| `@smoke` | Two fast, read-only public scenarios: home page keyword search and registration required fields |
 
 ## Why BDD?
 
 - **The scenarios read as requirements.** A product owner can read `createListing.feature` and confirm it describes the right behavior, without reading any JavaScript.
-- **One step, many scenarios.** Steps like `I sign in as the "admin" account` are written once and reused across features, so the suite grows by writing Gherkin rather than duplicating code.
+- **One step, many scenarios.** Steps like `I am signed in as the "user" account` are written once and reused across features, so the suite grows by writing Gherkin rather than duplicating code.
 - **Scenario Outlines and data tables remove repetition.** The UI and API sign-in paths share one listing scenario, and the required-field checks are a single table instead of four tests.
 - **Tags control what runs.** `@requires-account` separates scenarios that need test accounts from those that don't, so the suite can run anywhere, including pull requests from forks that can't see secrets.
 - **Layers stay separate.** Gherkin describes behavior, step definitions connect it to code, and page objects hold the selectors. A UI change means editing one page object, not every scenario.
@@ -55,26 +64,30 @@ Tags: `@auth`, `@listings`, `@search`, `@api`, and `@requires-account` for scena
 ## Test Design
 
 - **No personal data in the repo.** Every email, name and password comes from environment variables read in `cypress/support/users.js`, which fails with a clear message if one is missing.
-- **Tests clean up after themselves.** The API scenario deletes the listing it creates, and an `After` hook deletes it if the scenario fails before that step.
+- **Tests clean up after themselves.** Every listing a scenario creates (through the UI or the API) is deleted: the API scenario deletes its own, and an `After` hook deletes any listing left behind, using the ID captured from the create request.
 - **Generated data.** Faker creates listing details and new registration accounts, so runs don't collide.
-- **Retries for a live site.** CI retries a failed scenario once, since the tests run against a public demo site rather than a local copy.
+- **Retries for a live site.** `cypress run` (CI and local) retries a failed scenario once, since the tests run against a public demo site rather than a local copy.
+- **No guessed live data.** Listings on the site change constantly, so the featured keyword search uses a title read from the page at run time.
 
 ## Tech Stack
 
 - **Testing:** Cypress 13, [@badeball/cypress-cucumber-preprocessor](https://github.com/badeball/cypress-cucumber-preprocessor), esbuild
-- **Design:** Page Object Model (`cypress/pages/`), custom commands (`loginViaUI`, `uploadImage`), JSON fixtures
-- **Test data:** Faker, `cypress-file-upload` for listing photos
+- **Design:** Page Object Model (`cypress/pages/`, shared parts in `cypress/pages/components/`), custom commands (`loginViaUI`, `loginViaApi`, `createListingViaApi`, `deleteListingViaApi`, `uploadImage`), JSON fixtures
+- **Test data:** Faker, built-in `cy.selectFile` for listing photos
 - **Reporting:** cypress-mochawesome-reporter, mocha-junit-reporter
 - **CI/CD:** GitHub Actions, GitHub Secrets
 
 ## Run It Locally
 
-Requires Node.js 18 or later.
+Requires Node.js 20 or later (CI uses 22).
 
 ```bash
 npm install
 
-# Scenarios that need no account (works with no setup)
+# Two fast read-only scenarios
+npm run test:smoke
+
+# Public, read-only scenarios (no account needed, nothing written to the site)
 npm run test:public
 
 # Every scenario (needs test accounts, see below)
@@ -91,6 +104,9 @@ To run a single tag, pass it to Cypress:
 
 ```bash
 npx cypress run --env tags="@search"
+
+# Public and read-only (no account, nothing written to the site)
+npx cypress run --env tags="not @requires-account and not @creates-data"
 ```
 
 ### Test accounts
@@ -112,7 +128,7 @@ For CI, add these repository secrets under **Settings → Secrets and variables 
 | `CYPRESS_USER_EMAIL`, `CYPRESS_USER_PASSWORD` | The standard user account |
 | `CYPRESS_USER_FIRST_NAME`, `CYPRESS_USER_LAST_NAME` | The standard user's registered name |
 
-Without these secrets, CI runs only the scenarios without `@requires-account` and shows a warning on the run.
+Without these secrets, CI runs only the public read-only scenarios (`npm run test:public`: not `@requires-account`, not `@creates-data`) and shows a warning on the run.
 
 > These tests run against a live demo site and create real listings there, so results depend on the site being available.
 
@@ -123,9 +139,14 @@ cypress/
   e2e/features/             Gherkin feature files, by area
   support/step_definitions/ Step definitions
   support/users.js          Test accounts from environment variables
-  pages/                    Page objects
-  fixtures/                 Listing data and images
+  support/commands.js       Custom commands (UI/API login, listing API, image upload)
+  support/listingChecks.js  Shared listing card and detail page assertions
+  pages/                    Page objects (one per page)
+  pages/components/         Search form and form-field parts shared by pages
+  fixtures/                 Listing data and image
 .github/workflows/          CI pipeline
+.claude/skills/             Guides for adding scenarios, page objects and assertions
+CLAUDE.md                   Conventions for this repo
 ```
 
 ## Author

@@ -8,6 +8,7 @@ Feature: Registration
     Given I am on the Delek Homes home page
     And I open the registration form
 
+  @creates-data
   Scenario: New visitor registers an account
     When I register with a new randomly generated account
     Then I should be taken to the dashboard
@@ -18,11 +19,16 @@ Feature: Registration
     When I register with the details of the existing "user" account
     Then I should see the registration error "Input data validation failed"
 
+  @smoke
   Scenario: Registration requires every field
     When I submit the registration form without filling it in
     Then I should see these required-field errors:
-      | field     | message             |
-      | firstName | First name required |
-      | lastName  | Last name required  |
-      | email     | Email is required   |
+      | field     | message              |
+      | firstName | First name required  |
+      | lastName  | Last name required   |
+      | email     | Email is required    |
       | password  | Password is required |
+
+  Scenario: Registration rejects an invalid email address
+    When I register with the email "not-an-email"
+    Then the "email" field should show the error "Email must be a valid email address"

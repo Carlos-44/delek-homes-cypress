@@ -1,4 +1,4 @@
-@listings @api @requires-account
+@listings @api @requires-account @creates-data
 Feature: Listings API
   As a Delek Homes admin
   I want to manage listings through the API

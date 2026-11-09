@@ -1,68 +1,93 @@
 class CreateListingPage {
-    listingTitleInput() {
-        return cy.get('input[name="title"]');
-    }
+  visit() {
+    cy.visit("/dashboard/real-estate/new");
+  }
 
-    listingPriceInput() {
-        return cy.get('input[name="price"]');
-    }
+  titleInput() {
+    return cy.get('input[name="title"]');
+  }
 
-    descriptionInput() {
-        return cy.get('textarea[name="description"]');
-    }
+  priceInput() {
+    return cy.get('input[name="price"]');
+  }
 
-    cityInput() {
-        return cy.get('input[name="city"]');
-    }
+  descriptionInput() {
+    return cy.get('textarea[name="description"]');
+  }
 
-    addressInput() {
-        return cy.get('input[name="address"]');
-    }
+  cityInput() {
+    return cy.get('input[name="city"]');
+  }
 
-    zipCodeInput() {
-        return cy.get('input[name="zipCode"]');
-    }
+  addressInput() {
+    return cy.get('input[name="address"]');
+  }
 
-    bedroomsInput() {
-        return cy.get('input[name="bedrooms"]');
-    }
+  zipCodeInput() {
+    return cy.get('input[name="zipCode"]');
+  }
 
-    bathroomsInput() {
-        return cy.get('input[name="bathrooms"]');
-    }
+  // MUI select: the named hidden input sits next to the clickable listbox trigger
+  stateSelect() {
+    return cy.get('input[name="state"]').parent().find('[aria-haspopup="listbox"]');
+  }
 
-    garageInput() {
-        return cy.get('input[name="garage"]');
-    }
+  bedroomsInput() {
+    return cy.get('input[name="bedrooms"]');
+  }
 
-    sqftInput() {
-        return cy.get('input[name="sqft"]');
-    }
+  bathroomsInput() {
+    return cy.get('input[name="bathrooms"]');
+  }
 
-    lotSizeInput() {
-        return cy.get('input[name="lotSize"]');
-    }
+  garageInput() {
+    return cy.get('input[name="garage"]');
+  }
 
-    clickPublishSwitch() {
-        return cy.get('[name="isPublished"]').click();
-    }
+  sqftInput() {
+    return cy.get('input[name="sqft"]');
+  }
 
-    clickSubmitButton() {
-        return cy.get('button[type="submit"]').click();
-    }
+  lotSizeInput() {
+    return cy.get('input[name="lotSize"]');
+  }
 
-    selectStateOption(state) {
-        this.clickStateDropdown(); // Use 'this' to reference another method in the class
-        cy.contains('li', state).click(); 
-    }
+  publishedSwitch() {
+    return cy.get('[name="isPublished"]');
+  }
 
-    clickStateDropdown() {
-        return cy.get('[id=":r6:"]').click(); // Ensure this method clicks the dropdown
-    }
+  submitButton() {
+    return cy.get('button[type="submit"]');
+  }
 
-    verifyUrlContains(text) {
-        cy.url().should('include', text);
-    }
+  selectState(state) {
+    this.stateSelect().click();
+    cy.contains('li[role="option"]', state).click();
+  }
+
+  togglePublished() {
+    this.publishedSwitch().click();
+  }
+
+  submit() {
+    this.submitButton().click();
+  }
+
+  // Fills every text field and the state select from a listing object (numbers are typed as text)
+  fill(listing) {
+    this.titleInput().type(listing.title);
+    this.priceInput().type(String(listing.price));
+    this.descriptionInput().type(listing.description);
+    this.cityInput().type(listing.city);
+    this.addressInput().type(listing.address);
+    this.zipCodeInput().type(listing.zipCode);
+    this.selectState(listing.state);
+    this.bedroomsInput().type(String(listing.bedrooms));
+    this.bathroomsInput().type(String(listing.bathrooms));
+    this.garageInput().type(String(listing.garage));
+    this.sqftInput().type(String(listing.sqft));
+    this.lotSizeInput().type(String(listing.lotSize));
+  }
 }
 
 export default new CreateListingPage();

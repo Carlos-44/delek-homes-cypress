@@ -1,19 +1,19 @@
-@search @requires-account
+@search
 Feature: Featured listings search
-  As a signed-in user
+  As a visitor
   I want to filter the featured listings
   So that I only see homes that match my criteria
 
   Background:
-    Given I am signed in as the "user" account and viewing the featured listings
+    Given I am on the featured listings page
 
   Scenario: Search featured listings by keyword
-    When I search the featured listings for the keyword "Your future house"
-    Then every listing title should contain "Your future house"
+    When I search the featured listings for the longest listing title shown
+    Then every listing title should contain the searched title
 
   Scenario: Filter featured listings by bedrooms
     When I filter the featured listings to 3 or more bedrooms
-    Then no listing should show only 1 bedroom
+    Then every listing shown should have at least 3 bedrooms
 
   Scenario: Filter featured listings by city
     When I search the featured listings for the city "Galewood"
@@ -21,4 +21,4 @@ Feature: Featured listings search
 
   Scenario: Filter featured listings by price range
     When I search the featured listings for prices from 1000000 to 10000000
-    Then the price filter should show dollar amounts
+    Then the results should be filtered by prices from 1000000 to 10000000

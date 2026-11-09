@@ -15,3 +15,6 @@ cypress.env.json
 
 *.log
 .DS_Store
+
+# Graphify knowledge graph output
+graphify-out/

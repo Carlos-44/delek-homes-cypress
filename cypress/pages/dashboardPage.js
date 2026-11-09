@@ -1,28 +1,22 @@
 class DashboardPage {
-    roleLabel() {
-      return cy.get('[class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-10n697b"]');
-    }
-  
-    profileBtn() {
-      return cy.get('[class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-w5qhhs"]');
-    }
-  
-    logoutBtn() {
-      return cy.get('[class="MuiButtonBase-root MuiMenuItem-root MuiMenuItem-gutters css-p9n58v"]');
-    }
-  
-    clickProfileBtn() {
-      this.profileBtn().click();
-    }
-  
-    clickLogoutBtn() {
-      this.logoutBtn().click();
-    }
-  
-    assertRoleLabel(text) {
-      this.roleLabel().should('have.text', text);
-    }
+  // Sidebar account summary, rendered as "role: <role list>"
+  roleLabel() {
+    return cy.contains(/^role: /);
   }
-  
-  export default new DashboardPage();
-  
+
+  // The header's account button is the icon button wrapping the user's avatar
+  profileButton() {
+    return cy.get("header").find(".MuiAvatar-root").closest("button");
+  }
+
+  logoutMenuItem() {
+    return cy.contains('[role="menuitem"]', "Logout");
+  }
+
+  signOut() {
+    this.profileButton().click();
+    this.logoutMenuItem().click();
+  }
+}
+
+export default new DashboardPage();

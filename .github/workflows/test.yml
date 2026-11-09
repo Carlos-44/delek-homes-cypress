@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Cache node_modules and Cypress binary
@@ -57,7 +57,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Restore node_modules and Cypress binary
         id: node-cache
@@ -80,7 +80,7 @@ jobs:
           if [ -n "$CYPRESS_ADMIN_EMAIL" ] && [ -n "$CYPRESS_USER_EMAIL" ]; then
             echo "scope=all" >> "$GITHUB_OUTPUT"
           else
-            echo "::warning::Test account secrets are not set, so only scenarios without @requires-account will run."
+            echo "::warning::Test account secrets are not set, so only public read-only scenarios (not @requires-account, not @creates-data) will run."
             echo "scope=public" >> "$GITHUB_OUTPUT"
           fi
 

@@ -7,10 +7,16 @@ Feature: Home page search
   Background:
     Given I am on the Delek Homes home page
 
+  @smoke
   Scenario: Search by keyword
     When I search the home page for the keyword "Your future house"
     Then I should be on the featured listings page
     And the search box should contain "Your future house"
+
+  Scenario: Search with a keyword that matches nothing
+    When I search the home page for a keyword that matches no listing
+    Then I should be on the featured listings page
+    And no listings should be shown
 
   Scenario: Search by number of bedrooms
     When I search the home page for listings with 3 or more bedrooms
@@ -22,4 +28,4 @@ Feature: Home page search
 
   Scenario: Search by price range
     When I search the home page for prices from 1000000 to 10000000
-    Then the price filter should show dollar amounts
+    Then the results should be filtered by prices from 1000000 to 10000000

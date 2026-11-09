@@ -1,43 +1,46 @@
 class LoginPage {
-    // Method to get the email input element
-    emailInput() {
-        return cy.get('[id=":r5:"]'); // Updated to match the email input field
-    }
+  visit() {
+    cy.visit("/auth/login");
+  }
 
-    // Method to get the password input element
-    passwordInput() {
-        return cy.get('[id=":r6:"]'); // Updated to match the password input field
-    }
+  emailInput() {
+    return cy.get('input[name="email"]');
+  }
 
-    // Method to get the login button element
-    loginBtn() {
-        return cy.get('[id=":r7:"]'); // Updated to match the login button
-    }
+  passwordInput() {
+    return cy.get('input[name="password"]');
+  }
 
-    // Method to get the login text element
-    loginText() {
-        return cy.get('h4'); // Assuming this is the correct selector for the login page header
-    }
+  submitButton() {
+    return cy.get('button[type="submit"]');
+  }
 
-    // Method to type email into the email input
-    typeEmail(email) {
-        this.emailInput().type(email); // No change needed
-    }
+  heading() {
+    return cy.get("h4");
+  }
 
-    // Method to type password into the password input
-    typePassword(password) {
-        this.passwordInput().type(password); // No change needed
-    }
+  // Server-side sign-in errors are shown in an MUI Alert above the fields
+  errorAlert() {
+    return cy.get('[role="alert"]');
+  }
 
-    // Method to click the login button
-    clickLoginBtn() {
-        this.loginBtn().click(); // No change needed
-    }
+  typeEmail(email) {
+    this.emailInput().type(email);
+  }
 
-    // Method to assert that the login text matches the expected text
-    assertLoginText(text) {
-        this.loginText().should('have.text', text); // No change needed
-    }
+  typePassword(password) {
+    this.passwordInput().type(password, { log: false });
+  }
+
+  submit() {
+    this.submitButton().click();
+  }
+
+  signIn(email, password) {
+    this.typeEmail(email);
+    this.typePassword(password);
+    this.submit();
+  }
 }
 
 export default new LoginPage();

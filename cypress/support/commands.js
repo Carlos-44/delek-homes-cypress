@@ -1,76 +1,68 @@
-import 'cypress-file-upload';
+import LoginPage from "../pages/loginPage";
 
-// Custom command for handling uncaught exceptions
-Cypress.Commands.add('errorHandler', () => {
-    Cypress.on('uncaught:exception', (err, runnable) => {
-        // Prevent Cypress from failing the test if there are uncaught exceptions
-        return false;
-    });
-});
-
-// Custom command for UI login
+// Sign in through the login form and confirm the app redirected to the dashboard
 Cypress.Commands.add("loginViaUI", (email, password) => {
-    cy.visit('/auth/login'); // Navigate to the login page
-
-    cy.get('input[name="email"]').type(email); // Enter the email
-    cy.get('input[name="password"]').type(password); // Enter the password
-
-    cy.get('button[type="submit"]').click(); // Click the login button
-
-    // Verify if redirected to the dashboard or desired page
-    cy.url().should('include', '/dashboard'); 
+  LoginPage.visit();
+  LoginPage.signIn(email, password);
+  cy.url().should("include", "/dashboard");
 });
 
-// Custom command for uploading an image using UI
-Cypress.Commands.add('uploadImage', (filePath) => {
-    cy.get('input[type="file"]').attachFile(filePath);
-    // Optional: Verify the file upload if necessary
-    // cy.get('input[type="file"]').should('have.value', filePath.split('/').pop());
-});
-
-Cypress.Commands.add("setViewport", (width = 1920, height = 1080) => {
-    cy.viewport(width, height);
-  });
-  
-
-/*
-  ==== Commented Section ====
-
-  If you prefer using API-based login instead of UI-based login, 
-  uncomment the section below and comment out or remove the UI-based login command.
-
-Cypress.Commands.add('loginViaAPI', (email, password) => {
-    cy.request('POST', '/api/users/login', {
-        email,
-        password
-    }).then((response) => {
-        expect(response.status).to.eq(201);  // Ensure the status code matches the API response
-        const token = response.body.accessToken;   // Extract the token from the response
-        cy.setCookie('auth_token', token);   // Set the cookie with the correct name and value
-        Cypress.env('auth_token', token);    // Store the token in Cypress environment 
+// Get an API token (yields it). With signInBrowser, the token is also stored in the app's
+// localStorage (the AUT window, not the spec window) so the UI treats the user as signed in.
+Cypress.Commands.add("loginViaApi", (email, password, { signInBrowser = true } = {}) => {
+  return cy
+    .request({ method: "POST", url: "/api/users/login", body: { email, password }, log: false })
+    .then((response) => {
+      expect(response.status, "API login status").to.eq(201);
+      const token = response.body.accessToken;
+      if (signInBrowser) {
+        cy.setCookie("auth_token", token, { log: false });
+        cy.visit("/", {
+          onBeforeLoad(win) {
+            win.localStorage.setItem("accessToken", token);
+          },
+        });
+      }
+      return cy.wrap(token, { log: false });
     });
 });
-*/
 
-/*
-  ==== Example Usage ====
+// Create a listing from a fixture through the API (multipart, with the fixture's image). Yields the new ID.
+Cypress.Commands.add("createListingViaApi", (fixtureName, token) => {
+  return cy.fixture(fixtureName).then((data) => {
+    return cy.fixture(data.imagePath, "base64").then((image) => {
+      const formData = new FormData();
+      formData.append("images", Cypress.Blob.base64StringToBlob(image, "image/jpeg"));
+      ["lotSize", "sqft", "garage", "bathrooms", "bedrooms", "price", "zipCode", "state", "city", "address",
+        "description", "title", "isPublished"].forEach((field) => formData.append(field, data[field]));
 
-  // UI-based Login Usage:
-  describe("Login Test", () => {
-      it("should log in successfully via UI", () => {
-          cy.loginViaUI(Cypress.env('ADMIN_EMAIL'), Cypress.env('ADMIN_PASSWORD'));
-          // Further test steps after successful login
-      });
+      return cy
+        .request({
+          method: "POST",
+          url: "/api/estate-objects",
+          body: formData,
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          // A FormData request yields the body as an ArrayBuffer
+          const body = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(response.body)));
+          return body.id;
+        });
+    });
   });
+});
 
-  // API-based Login Usage:
-  describe("Login Test", () => {
-      it("should log in successfully via API", () => {
-          cy.loginViaAPI(Cypress.env('ADMIN_EMAIL'), Cypress.env('ADMIN_PASSWORD')).then(() => {
-              cy.visit('/dashboard'); // Visit the dashboard directly after API login
-          });
-          // Further test steps after successful login
-      });
+// Delete a listing through the API. Yields the response (never fails on status, so cleanup can't throw).
+Cypress.Commands.add("deleteListingViaApi", (id, token) => {
+  return cy.request({
+    method: "DELETE",
+    url: `/api/estate-objects/${id}`,
+    headers: { Authorization: `Bearer ${token}` },
+    failOnStatusCode: false,
   });
-*/
+});
 
+// Attach a fixture image to the page's file input (built-in cy.selectFile)
+Cypress.Commands.add("uploadImage", (fileName) => {
+  cy.get('input[type="file"]').selectFile(`cypress/fixtures/${fileName}`, { force: true });
+});
