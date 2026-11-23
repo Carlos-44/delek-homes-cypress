@@ -4,7 +4,7 @@ Feature: Create a listing
   I want to publish property listings with photos
   So that buyers can find them through search
 
-  Scenario Outline: Admin publishes a listing after signing in through the <method>
+  Scenario Outline: [TC-006/TC-007] Admin publishes a listing after signing in through the <method>
     Given I am signed in as the admin through the <method>
     When I publish a new listing with random property details and a photo
     Then I should be taken to the listings dashboard

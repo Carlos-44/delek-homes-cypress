@@ -8,17 +8,17 @@ Feature: Registration
     Given I am on the Delek Homes home page
     And I open the registration form
 
-  Scenario: New visitor registers an account
+  Scenario: [TC-003] New visitor registers an account
     When I register with a new randomly generated account
     Then I should be taken to the dashboard
     And I should see my dashboard with the role "role: user"
 
   @requires-account
-  Scenario: Registration is rejected for an email that already exists
+  Scenario: [TC-004] Registration is rejected for an email that already exists
     When I register with the details of the existing "user" account
     Then I should see the registration error "Input data validation failed"
 
-  Scenario: Registration requires every field
+  Scenario: [TC-005] Registration requires every field
     When I submit the registration form without filling it in
     Then I should see these required-field errors:
       | field     | message             |

@@ -7,18 +7,18 @@ Feature: Featured listings search
   Background:
     Given I am signed in as the "user" account and viewing the featured listings
 
-  Scenario: Search featured listings by keyword
+  Scenario: [TC-013] Search featured listings by keyword
     When I search the featured listings for the keyword "Your future house"
     Then every listing title should contain "Your future house"
 
-  Scenario: Filter featured listings by bedrooms
+  Scenario: [TC-014] Filter featured listings by bedrooms
     When I filter the featured listings to 3 or more bedrooms
     Then no listing should show only 1 bedroom
 
-  Scenario: Filter featured listings by city
+  Scenario: [TC-015] Filter featured listings by city
     When I search the featured listings for the city "Galewood"
     Then every listing should show the city "Galewood"
 
-  Scenario: Filter featured listings by price range
+  Scenario: [TC-016] Filter featured listings by price range
     When I search the featured listings for prices from 1000000 to 10000000
     Then the price filter should show dollar amounts

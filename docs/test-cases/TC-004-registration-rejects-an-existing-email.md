@@ -2,7 +2,7 @@
 
 - **Priority:** P2
 - **Type:** negative
-- **Linked criteria:** F-02 AC-02
+- **Linked criteria:** F-02 AC-02 ([F-02](../features/F-02-registration.md))
 - **Status:** Manual only
 - **Automation:** Manual only: needs account credentials. Automated scenario exists in `cypress/e2e/features/auth/registration.feature`, but it isn't run in PR or push CI or in this documentation work.
 

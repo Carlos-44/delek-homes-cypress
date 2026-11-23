@@ -2,7 +2,7 @@
 
 - **Priority:** P1
 - **Type:** functional
-- **Linked criteria:** F-03 AC-01
+- **Linked criteria:** F-03 AC-01 ([F-03](../features/F-03-listings.md))
 - **Status:** Manual only
 - **Automation:** Manual only: needs account credentials. Automated scenario exists in `cypress/e2e/features/listings/createListing.feature`, but it isn't run in PR or push CI or in this documentation work.
 
