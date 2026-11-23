@@ -84,14 +84,17 @@ jobs:
             echo "scope=public" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run Cucumber scenarios
+      # Account scenarios (@requires-account) are skipped on pull_request runs;
+      # PRs run only the public scenarios. Push and manual runs are unchanged.
+      - name: Run Cucumber scenarios (all, including account)
+        if: steps.scope.outputs.scope == 'all' && github.event_name != 'pull_request'
         continue-on-error: true # the report stage decides pass or fail
-        run: |
-          if [ "${{ steps.scope.outputs.scope }}" = "all" ]; then
-            npm test -- --browser chrome
-          else
-            npm run test:public -- --browser chrome
-          fi
+        run: npm test -- --browser chrome
+
+      - name: Run Cucumber scenarios (public only)
+        if: steps.scope.outputs.scope != 'all' || github.event_name == 'pull_request'
+        continue-on-error: true # the report stage decides pass or fail
+        run: npm run test:public -- --browser chrome
 
       - name: Upload JUnit results
         uses: actions/upload-artifact@v4
