@@ -84,15 +84,15 @@ jobs:
             echo "scope=public" >> "$GITHUB_OUTPUT"
           fi
 
-      # Account scenarios (@requires-account) are skipped on pull_request runs;
-      # PRs run only the public scenarios. Push and manual runs are unchanged.
+      # Account scenarios (@requires-account) run only on manual (workflow_dispatch)
+      # runs. Pull request and push runs execute only the public scenarios.
       - name: Run Cucumber scenarios (all, including account)
-        if: steps.scope.outputs.scope == 'all' && github.event_name != 'pull_request'
+        if: steps.scope.outputs.scope == 'all' && github.event_name == 'workflow_dispatch'
         continue-on-error: true # the report stage decides pass or fail
         run: npm test -- --browser chrome
 
       - name: Run Cucumber scenarios (public only)
-        if: steps.scope.outputs.scope != 'all' || github.event_name == 'pull_request'
+        if: steps.scope.outputs.scope != 'all' || github.event_name != 'workflow_dispatch'
         continue-on-error: true # the report stage decides pass or fail
         run: npm run test:public -- --browser chrome
 

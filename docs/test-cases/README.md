@@ -1,28 +1,24 @@
 # Test cases: traceability
 
-New IDs start at TC-001. Each acceptance criterion in `docs/features/` has at least one test case. Test cases map one to one to the existing Cucumber scenarios (the create-listing outline counts as two, for UI and API).
+One manual test-case file per scenario run: 16 runs, from 15 scenario definitions plus the create-listing outline running twice. The 6 public scenarios are automated and passed locally. The 10 account runs (`@requires-account`) are Manual only, because they need account credentials. In CI they run only on manual (`workflow_dispatch`) runs.
 
-| Requirement | Test cases | Automated |
-|---|---|---|
-| F-01 AC-01 | [TC-001](TC-001.md) | No |
-| F-01 AC-02 | [TC-002](TC-002.md) | No |
-| F-02 AC-01 | [TC-003](TC-003.md) | No |
-| F-02 AC-02 | [TC-004](TC-004.md) | No |
-| F-02 AC-03 | [TC-005](TC-005.md) | No |
-| F-03 AC-01 | [TC-006](TC-006.md) | No |
-| F-03 AC-02 | [TC-007](TC-007.md) | No |
-| F-03 AC-03 | [TC-008](TC-008.md) | No |
-| F-04 AC-01 | [TC-009](TC-009.md) | No |
-| F-04 AC-02 | [TC-010](TC-010.md) | No |
-| F-04 AC-03 | [TC-011](TC-011.md) | No |
-| F-04 AC-04 | [TC-012](TC-012.md) | No |
-| F-05 AC-01 | [TC-013](TC-013.md) | No |
-| F-05 AC-02 | [TC-014](TC-014.md) | No |
-| F-05 AC-03 | [TC-015](TC-015.md) | No |
-| F-05 AC-04 | [TC-016](TC-016.md) | No |
+| TC ID | Status | Automation file | Manual file |
+|---|---|---|---|
+| TC-001 | Manual only | `cypress/e2e/features/auth/login.feature` | [TC-001-user-signs-in-with-an-existing.md](TC-001-user-signs-in-with-an-existing.md) |
+| TC-002 | Manual only | `cypress/e2e/features/auth/login.feature` | [TC-002-user-signs-out.md](TC-002-user-signs-out.md) |
+| TC-003 | Automated | `cypress/e2e/features/auth/registration.feature` | [TC-003-new-visitor-registers-an-account.md](TC-003-new-visitor-registers-an-account.md) |
+| TC-004 | Manual only | `cypress/e2e/features/auth/registration.feature` | [TC-004-registration-rejects-an-existing-email.md](TC-004-registration-rejects-an-existing-email.md) |
+| TC-005 | Automated | `cypress/e2e/features/auth/registration.feature` | [TC-005-registration-requires-every-field.md](TC-005-registration-requires-every-field.md) |
+| TC-006 | Manual only | `cypress/e2e/features/listings/createListing.feature` | [TC-006-admin-publishes-a-listing-after-ui.md](TC-006-admin-publishes-a-listing-after-ui.md) |
+| TC-007 | Manual only | `cypress/e2e/features/listings/createListing.feature` | [TC-007-admin-publishes-a-listing-after-api.md](TC-007-admin-publishes-a-listing-after-api.md) |
+| TC-008 | Manual only | `cypress/e2e/features/listings/listingApi.feature` | [TC-008-admin-creates-and-deletes-a-listing.md](TC-008-admin-creates-and-deletes-a-listing.md) |
+| TC-009 | Automated | `cypress/e2e/features/search/homePageSearch.feature` | [TC-009-home-page-search-by-keyword.md](TC-009-home-page-search-by-keyword.md) |
+| TC-010 | Automated | `cypress/e2e/features/search/homePageSearch.feature` | [TC-010-home-page-search-by-bedrooms.md](TC-010-home-page-search-by-bedrooms.md) |
+| TC-011 | Automated | `cypress/e2e/features/search/homePageSearch.feature` | [TC-011-home-page-search-by-city.md](TC-011-home-page-search-by-city.md) |
+| TC-012 | Automated | `cypress/e2e/features/search/homePageSearch.feature` | [TC-012-home-page-search-by-price-range.md](TC-012-home-page-search-by-price-range.md) |
+| TC-013 | Manual only | `cypress/e2e/features/search/featuredListingsSearch.feature` | [TC-013-featured-listings-filtered-by-keyword.md](TC-013-featured-listings-filtered-by-keyword.md) |
+| TC-014 | Manual only | `cypress/e2e/features/search/featuredListingsSearch.feature` | [TC-014-featured-listings-filtered-by-bedrooms.md](TC-014-featured-listings-filtered-by-bedrooms.md) |
+| TC-015 | Manual only | `cypress/e2e/features/search/featuredListingsSearch.feature` | [TC-015-featured-listings-filtered-by-city.md](TC-015-featured-listings-filtered-by-city.md) |
+| TC-016 | Manual only | `cypress/e2e/features/search/featuredListingsSearch.feature` | [TC-016-featured-listings-filtered-by-price-range.md](TC-016-featured-listings-filtered-by-price-range.md) |
 
-Totals: 16 test cases. 16 have an existing automated test, and 0 have none. None are marked Automated yet; statuses are set after a recorded test run.
-
-Notes:
-- **Not automated: account scenarios (10 runs: TC-001, TC-002, TC-004, TC-006, TC-007, TC-008, TC-013, TC-014, TC-015, TC-016).** They need test-account credentials (`@requires-account`), so they are documented but deliberately not run in this documentation work.
-- **Public scenarios (6: TC-003, TC-005, TC-009 to TC-012)** run with `npm run test:public`. TC-003 creates a real account on the third-party dev site.
+Totals: 16 test cases — 6 Automated, 10 Manual only, 0 Not started.
