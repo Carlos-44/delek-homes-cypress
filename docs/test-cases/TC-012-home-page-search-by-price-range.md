@@ -2,9 +2,9 @@
 
 - **Priority:** P3
 - **Type:** boundary
-- **Linked criteria:** F-04 AC-04
+- **Linked criteria:** F-04 AC-04 ([F-04](../features/F-04-home-search.md))
 - **Status:** Automated
-- **Automation:** cypress/e2e/features/search/homePageSearch.feature — "Search by price range"
+- **Automation:** cypress/e2e/features/search/homePageSearch.feature — "[TC-012] Search by price range"
 
 ## Preconditions
 - On the home page.
@@ -20,5 +20,5 @@
 **Pass criteria:** The price filter shows dollar amounts.
 
 ## Notes
-- Passed locally 2026-11-23 (Node 20.20.2, Cypress 13.13.2, Electron headless, `--env tags="not @requires-account"`): 6/6 public scenarios.
+- Passed locally 2026-11-23 (Node 20.20.2, Cypress 13.13.2, `--env tags="not @requires-account"`): 6/6 public scenarios, after the TC-ID renames.
 - It doesn't check that results fall within the range (gap G-2).

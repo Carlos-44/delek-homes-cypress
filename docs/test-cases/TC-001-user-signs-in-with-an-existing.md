@@ -2,7 +2,7 @@
 
 - **Priority:** P1
 - **Type:** functional
-- **Linked criteria:** F-01 AC-01
+- **Linked criteria:** F-01 AC-01 ([F-01](../features/F-01-sign-in-out.md))
 - **Status:** Manual only
 - **Automation:** Manual only: needs account credentials. Automated scenario exists in `cypress/e2e/features/auth/login.feature`, but it isn't run in PR or push CI or in this documentation work.
 

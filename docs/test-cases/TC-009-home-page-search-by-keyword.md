@@ -2,9 +2,9 @@
 
 - **Priority:** P1
 - **Type:** functional
-- **Linked criteria:** F-04 AC-01
+- **Linked criteria:** F-04 AC-01 ([F-04](../features/F-04-home-search.md))
 - **Status:** Automated
-- **Automation:** cypress/e2e/features/search/homePageSearch.feature — "Search by keyword"
+- **Automation:** cypress/e2e/features/search/homePageSearch.feature — "[TC-009] Search by keyword"
 
 ## Preconditions
 - On the home page.
@@ -20,4 +20,4 @@
 **Pass criteria:** The featured listings page opens, and the search box contains "Your future house".
 
 ## Notes
-- Passed locally 2026-11-23 (Node 20.20.2, Cypress 13.13.2, Electron headless, `--env tags="not @requires-account"`): 6/6 public scenarios.
+- Passed locally 2026-11-23 (Node 20.20.2, Cypress 13.13.2, `--env tags="not @requires-account"`): 6/6 public scenarios, after the TC-ID renames.

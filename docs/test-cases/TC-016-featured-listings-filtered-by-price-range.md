@@ -2,7 +2,7 @@
 
 - **Priority:** P3
 - **Type:** boundary
-- **Linked criteria:** F-05 AC-04
+- **Linked criteria:** F-05 AC-04 ([F-05](../features/F-05-featured-search.md))
 - **Status:** Manual only
 - **Automation:** Manual only: needs account credentials. Automated scenario exists in `cypress/e2e/features/search/featuredListingsSearch.feature`, but it isn't run in PR or push CI or in this documentation work.
 
